@@ -32,6 +32,7 @@ margin_bottom = 14.0
 text = "Options"
 
 [node name="OptionsContainer" type="VBoxContainer" parent="."]
+visible = false
 margin_top = 18.0
 margin_right = 1024.0
 margin_bottom = 42.0
@@ -55,12 +56,12 @@ size_flags_horizontal = 3
 text = "_"
 
 [node name="RunButton" type="Button" parent="."]
-margin_top = 46.0
+margin_top = 18.0
 margin_right = 1024.0
-margin_bottom = 66.0
+margin_bottom = 38.0
 size_flags_horizontal = 3
 shortcut = SubResource( 2 )
-text = "Go"
+text = "Generate"
 
 [connection signal="gui_input" from="HBoxContainer" to="." method="_on_HBoxContainer_gui_input"]
 [connection signal="pressed" from="RunButton" to="." method="_on_RunButton_pressed"]

@@ -1,6 +1,10 @@
 # godot-vargen
 
-This is a simple code generation Godot plugin, which inserts `onready var <node_name>: <node_type> = $"<node_path>` declarations for each selected node.
+This is a simple code generation Godot plugin, which generates `onready var <node_name>: <node_type> = $"<node_path>` declarations for each selected node.
+
+<p style="float: left">
+    <img src="img/screenshot1.png" width="200"/>
+</p>
 
 # Installation
 
@@ -23,3 +27,7 @@ The script will create an `onready var` statement for each selected node, and in
 # Known issues
 
 - 🪲 Non-ASCII characters in the node's name will cause incorrect behavior.
+
+# Credits
+
+- 🎨 [icon_GUI_tree_arrow_right.svg](https://github.com/godotengine/godot/blob/3.4.4-stable/editor/icons/icon_GUI_tree_arrow_right.svg) and [icon_GUI_tree_arrow_down.svg](https://github.com/godotengine/godot/blob/3.4.4-stable/editor/icons/icon_GUI_tree_arrow_down.svg) from Godot editor sources.
