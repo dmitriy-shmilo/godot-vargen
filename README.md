@@ -17,9 +17,9 @@ The script will create an `onready var` statement for each selected node, and in
 
 # Important
 
-⚠️ This script modifies actual script files on the filesystem, unsaved changes might be lost.
-⚠️ This script uses an undocumented API to reload scripts in the editor.
+- ⚠️ This script modifies actual script files on the filesystem, unsaved changes might be lost.
+- ⚠️ This script uses an undocumented API to reload scripts in the editor.
 
 # Known issues
 
-🪲 Non-ASCII characters in the node's name will cause incorrect behavior.
+- 🪲 Non-ASCII characters in the node's name will cause incorrect behavior.
