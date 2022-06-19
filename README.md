@@ -3,7 +3,7 @@
 This is a simple code generation Godot plugin, which generates `onready var <node_name>: <node_type> = $"<node_path>` declarations for each selected node.
 
 <p style="float: left">
-    <img src="img/screenshot1.png" width="200"/>
+    <img src="img/screenshot1.png" width="300"/>
 </p>
 
 # Installation
