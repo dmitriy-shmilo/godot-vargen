@@ -1,4 +1,5 @@
 tool
+class_name VargenDock
 extends VBoxContainer
 
 signal run_pressed(sender, options)
@@ -6,7 +7,6 @@ signal run_pressed(sender, options)
 const INDICATOR_COLLAPSED = preload("res://addons/vargen/icon_GUI_tree_arrow_right.svg")
 const INDICATOR_REVEALED = preload("res://addons/vargen/icon_GUI_tree_arrow_down.svg")
 
-onready var _tree: Tree = $"Tree"
 onready var _collapse_options_indicator: TextureRect = $"HBoxContainer/Indicator"
 onready var _options_container: Control = $"OptionsContainer"
 onready var _prefix_edit: LineEdit = $"OptionsContainer/HBoxContainer/PrefixEdit"
@@ -26,7 +26,6 @@ func _on_HBoxContainer_gui_input(event: InputEvent) -> void:
 
 
 func _on_RunButton_pressed() -> void:
-	print("run pressed")
 	emit_signal("run_pressed",
 		self,
 		{
