@@ -1,0 +1,66 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/vargen/vargen_dock.gd" type="Script" id=1]
+[ext_resource path="res://addons/vargen/icon_GUI_tree_arrow_right.svg" type="Texture" id=2]
+
+[sub_resource type="InputEventKey" id=1]
+alt = true
+physical_scancode = 71
+
+[sub_resource type="ShortCut" id=2]
+shortcut = SubResource( 1 )
+
+[node name="VarGen" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_right = 1024.0
+margin_bottom = 14.0
+
+[node name="Indicator" type="TextureRect" parent="HBoxContainer"]
+margin_right = 12.0
+margin_bottom = 14.0
+texture = ExtResource( 2 )
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+margin_left = 16.0
+margin_right = 67.0
+margin_bottom = 14.0
+text = "Options"
+
+[node name="OptionsContainer" type="VBoxContainer" parent="."]
+margin_top = 18.0
+margin_right = 1024.0
+margin_bottom = 42.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="OptionsContainer"]
+margin_right = 1024.0
+margin_bottom = 24.0
+
+[node name="Prefix" type="Label" parent="OptionsContainer/HBoxContainer"]
+margin_top = 5.0
+margin_right = 510.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Prefix"
+
+[node name="PrefixEdit" type="LineEdit" parent="OptionsContainer/HBoxContainer"]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "_"
+
+[node name="RunButton" type="Button" parent="."]
+margin_top = 46.0
+margin_right = 1024.0
+margin_bottom = 66.0
+size_flags_horizontal = 3
+shortcut = SubResource( 2 )
+text = "Go"
+
+[connection signal="gui_input" from="HBoxContainer" to="." method="_on_HBoxContainer_gui_input"]
+[connection signal="pressed" from="RunButton" to="." method="_on_RunButton_pressed"]
