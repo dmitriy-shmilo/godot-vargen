@@ -50,3 +50,27 @@ func _test_non_ascii_lower_case() -> void:
 
 func _test_non_ascii_upper_case() -> void:
 	_name_and_assert("БАР", "бар")
+
+
+func _test_separating_number_lower_case() -> void:
+	_name_and_assert("foo1bar", "foo_1bar")
+
+
+func _test_separating_number_upper_case() -> void:
+	_name_and_assert("FOO1BAR", "foo_1bar")
+
+
+func _test_separating_number_lower_then_upper_case() -> void:
+	_name_and_assert("foo1BAR", "foo_1bar")
+
+
+func _test_separating_number_upper_then_lower_case() -> void:
+	_name_and_assert("foo1BAR", "foo_1bar")
+
+
+func _test_multiple_numbers() -> void:
+	_name_and_assert("foo123", "foo_123")
+
+
+func _test_starting_number() -> void:
+	_name_and_assert("1foo", "1foo")

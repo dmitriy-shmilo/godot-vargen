@@ -3,11 +3,13 @@ extends Reference
 
 enum Case {
 	NONE,
+	NUMBER,
 	UPPER,
 	LOWER
 }
 
 export(Array, String) var separators = ["_"]
+export(Array, String) var numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 func var_name_from_node_name(node_name: String) -> String:
 	var name_len = node_name.length()
@@ -25,6 +27,10 @@ func var_name_from_node_name(node_name: String) -> String:
 
 		if separators.has(c):
 			current_case = Case.NONE
+		elif numbers.has(c):
+			if current_case == Case.LOWER or current_case == Case.UPPER:
+				name_result_array.append("_")
+			current_case = Case.NUMBER
 		elif c.to_lower() == c:
 			current_case = Case.LOWER
 		else:
