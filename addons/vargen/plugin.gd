@@ -3,20 +3,25 @@ extends EditorPlugin
 
 const ONREADY_BLOCK_START = "\nonready "
 
-var dock
+var _dock: VargenDock
+var _preferences: VargenPreferences
+
 func _enter_tree() -> void:
-	dock = load("res://addons/vargen/vargen_dock.tscn").instance()
-	dock.connect("run_pressed", self, "_on_run_pressed")
-	add_control_to_dock(DOCK_SLOT_RIGHT_BL, dock)
+	_dock = load("res://addons/vargen/vargen_dock.tscn").instance()
+	_dock.connect("run_pressed", self, "_on_run_pressed")
+	add_control_to_dock(DOCK_SLOT_RIGHT_BL, _dock)
+	_load_preferences()
 
 
 func _exit_tree() -> void:
-	remove_control_from_docks(dock)
-	if dock != null:
-		dock.queue_free()
+	remove_control_from_docks(_dock)
+	if _dock != null:
+		_dock.queue_free()
 
 
 func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
+	_save_preferences(options)
+
 	var interface = get_editor_interface()
 	var root_node = interface.get_edited_scene_root()
 	if root_node == null:
@@ -88,3 +93,13 @@ func _make_line(node: Node, root_node: Node, options: Dictionary) -> String:
 		name_result_array.append(c)
 	name = name_result_array.get_string_from_ascii().to_lower()
 	return "onready var %s%s: %s = $\"%s\"\n" % [options.prefix, name, type_name, root_node.get_path_to(node)]
+
+
+func _save_preferences(options: Dictionary) -> void:
+	_preferences.field_prefix = options.prefix
+	ResourceSaver.save("res://addons/vargen/vargen_preferences.tres", _preferences)
+
+
+func _load_preferences() -> void:
+	_preferences = ResourceLoader.load("res://addons/vargen/vargen_preferences.tres") as VargenPreferences
+	_dock.field_prefix = _preferences.field_prefix

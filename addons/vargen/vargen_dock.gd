@@ -2,6 +2,8 @@ tool
 class_name VargenDock
 extends VBoxContainer
 
+export (String) var field_prefix = "_" setget set_field_prefix
+
 signal run_pressed(sender, options)
 
 const INDICATOR_COLLAPSED = preload("res://addons/vargen/icon_GUI_tree_arrow_right.svg")
@@ -12,6 +14,10 @@ onready var _options_container: Control = $"OptionsContainer"
 onready var _prefix_edit: LineEdit = $"OptionsContainer/HBoxContainer/PrefixEdit"
 
 var _is_collapsed: bool = true setget _set_is_collapsed
+
+func set_field_prefix(val: String) -> void:
+	_prefix_edit.text = val
+
 
 func _set_is_collapsed(val: bool) -> void:
 	_is_collapsed = val

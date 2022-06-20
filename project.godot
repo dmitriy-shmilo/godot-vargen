@@ -13,9 +13,15 @@ _global_script_classes=[ {
 "class": "VargenDock",
 "language": "GDScript",
 "path": "res://addons/vargen/vargen_dock.gd"
+}, {
+"base": "Resource",
+"class": "VargenPreferences",
+"language": "GDScript",
+"path": "res://addons/vargen/vargen_preferences.gd"
 } ]
 _global_script_class_icons={
-"VargenDock": ""
+"VargenDock": "",
+"VargenPreferences": ""
 }
 
 [application]
