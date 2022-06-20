@@ -75,24 +75,10 @@ func _find_insert_position(source_code: String) -> int:
 
 
 func _make_line(node: Node, root_node: Node, options: Dictionary) -> String:
-	var a = "A".to_ascii()[0]
-	var z = "Z".to_ascii()[0]
-	var underscore = "_".to_ascii()[0]
-	var name = node.get_name()
+	var namer = VargenNamer.new()
+	var variable_name = namer.var_name_from_node(node)
 	var type_name = node.get_class()
-	var name_array = PoolByteArray(name.to_ascii())
-	var name_result_array = PoolByteArray()
-
-	var is_upper = true
-	for c in name.to_ascii():
-		if c >= a and c <= z and not is_upper:
-			name_result_array.append(underscore)
-			is_upper = true
-		elif is_upper:
-			is_upper = false
-		name_result_array.append(c)
-	name = name_result_array.get_string_from_ascii().to_lower()
-	return "onready var %s%s: %s = $\"%s\"\n" % [options.prefix, name, type_name, root_node.get_path_to(node)]
+	return "onready var %s%s: %s = $\"%s\"\n" % [options.prefix, variable_name, type_name, root_node.get_path_to(node)]
 
 
 func _save_preferences(options: Dictionary) -> void:
