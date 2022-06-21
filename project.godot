@@ -14,20 +14,20 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/vargen/vargen_dock.gd"
 }, {
-"base": "Reference",
-"class": "VargenNamer",
-"language": "GDScript",
-"path": "res://addons/vargen/vargen_snake_namer.gd"
-}, {
 "base": "Resource",
 "class": "VargenPreferences",
 "language": "GDScript",
 "path": "res://addons/vargen/vargen_preferences.gd"
+}, {
+"base": "Reference",
+"class": "VargenSnakeNamer",
+"language": "GDScript",
+"path": "res://addons/vargen/vargen_snake_namer.gd"
 } ]
 _global_script_class_icons={
 "VargenDock": "",
-"VargenNamer": "",
-"VargenPreferences": ""
+"VargenPreferences": "",
+"VargenSnakeNamer": ""
 }
 
 [application]

@@ -1,4 +1,4 @@
-class_name VargenNamer
+class_name VargenSnakeNamer
 extends Reference
 
 enum Case {

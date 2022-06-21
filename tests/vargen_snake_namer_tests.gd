@@ -9,7 +9,7 @@ func _run():
 
 
 func _name_and_assert(input: String, expected_result: String) -> void:
-	var namer = VargenNamer.new()
+	var namer = VargenSnakeNamer.new()
 	var result = namer.var_name_from_node_name(input)
 	assert(result == expected_result, \
 		"Expected '%s', but got '%s' from '%s'." \

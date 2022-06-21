@@ -75,7 +75,7 @@ func _find_insert_position(source_code: String) -> int:
 
 
 func _make_line(node: Node, root_node: Node, options: Dictionary) -> String:
-	var namer = VargenNamer.new()
+	var namer = VargenSnakeNamer.new()
 	var variable_name = namer.var_name_from_node(node)
 	var type_name = node.get_class()
 	return "onready var %s%s: %s = $\"%s\"\n" % [options.prefix, variable_name, type_name, root_node.get_path_to(node)]
