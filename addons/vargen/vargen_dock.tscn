@@ -55,6 +55,15 @@ margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "_"
 
+[node name="WarningLabel" type="Label" parent="."]
+visible = false
+margin_top = 18.0
+margin_right = 1024.0
+margin_bottom = 32.0
+custom_colors/font_color = Color( 1, 0.85, 0.4, 1 )
+text = "Warning text"
+autowrap = true
+
 [node name="RunButton" type="Button" parent="."]
 margin_top = 18.0
 margin_right = 1024.0
