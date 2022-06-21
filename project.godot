@@ -9,10 +9,20 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "VargenScriptComposer",
+"class": "VargenCSharpComposer",
+"language": "GDScript",
+"path": "res://addons/vargen/vargen_csharp_composer.gd"
+}, {
 "base": "VBoxContainer",
 "class": "VargenDock",
 "language": "GDScript",
 "path": "res://addons/vargen/vargen_dock.gd"
+}, {
+"base": "VargenScriptComposer",
+"class": "VargenGDScriptComposer",
+"language": "GDScript",
+"path": "res://addons/vargen/vargen_gdscript_composer.gd"
 }, {
 "base": "Reference",
 "class": "VargenNamer",
@@ -30,16 +40,23 @@ _global_script_classes=[ {
 "path": "res://addons/vargen/vargen_preferences.gd"
 }, {
 "base": "Reference",
+"class": "VargenScriptComposer",
+"language": "GDScript",
+"path": "res://addons/vargen/vargen_script_composer.gd"
+}, {
 "base": "VargenNamer",
 "class": "VargenSnakeNamer",
 "language": "GDScript",
 "path": "res://addons/vargen/vargen_snake_namer.gd"
 } ]
 _global_script_class_icons={
+"VargenCSharpComposer": "",
 "VargenDock": "",
+"VargenGDScriptComposer": "",
 "VargenNamer": "",
 "VargenPascalNamer": "",
 "VargenPreferences": "",
+"VargenScriptComposer": "",
 "VargenSnakeNamer": ""
 }
 

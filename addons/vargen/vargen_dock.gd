@@ -49,5 +49,5 @@ func _on_RunButton_pressed() -> void:
 	emit_signal("run_pressed",
 		self,
 		{
-			prefix = _prefix_edit.text
+			field_prefix = _prefix_edit.text
 		})
