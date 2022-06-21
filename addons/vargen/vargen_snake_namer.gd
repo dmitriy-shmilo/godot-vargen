@@ -1,15 +1,5 @@
 class_name VargenSnakeNamer
-extends Reference
-
-enum Case {
-	NONE,
-	NUMBER,
-	UPPER,
-	LOWER
-}
-
-export(Array, String) var separators = ["_"]
-export(Array, String) var numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+extends VargenNamer
 
 func var_name_from_node_name(node_name: String) -> String:
 	var name_len = node_name.length()
@@ -31,9 +21,9 @@ func var_name_from_node_name(node_name: String) -> String:
 			if current_case == Case.LOWER or current_case == Case.UPPER:
 				name_result_array.append("_")
 			current_case = Case.NUMBER
-		elif c.to_lower() == c:
+		elif c.to_upper() != c: # lowercase letter
 			current_case = Case.LOWER
-		else:
+		elif c.to_lower() != c: # uppercase letter
 			if current_case == Case.LOWER:
 				name_result_array.append("_")
 			current_case = Case.UPPER
@@ -41,6 +31,3 @@ func var_name_from_node_name(node_name: String) -> String:
 		name_result_array.append(c.to_lower())
 
 	return name_result_array.join("")
-
-func var_name_from_node(node: Node) -> String:
-	return var_name_from_node_name(node.name)
