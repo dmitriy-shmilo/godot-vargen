@@ -23,12 +23,12 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	remove_control_from_docks(_dock)
 	if _preferences != null:
-		_preferences = null
 		_preferences.free()
+		_preferences = null
 
 	if _dock != null:
-		_dock = null
 		_dock.free()
+		_dock = null
 
 
 func _on_selection_changed() -> void:

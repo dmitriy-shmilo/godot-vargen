@@ -20,9 +20,14 @@ var _is_run_enabled: bool = false
 var _warning_message: String = ""
 
 
+func _ready() -> void:
+	set_field_prefix(field_prefix)
+
+
 func set_field_prefix(val: String) -> void:
 	field_prefix = val
-	_prefix_edit.text = val
+	if is_inside_tree():
+		_prefix_edit.text = val
 
 
 func set_is_run_enabled(enabled: bool, reason: String) -> void:
