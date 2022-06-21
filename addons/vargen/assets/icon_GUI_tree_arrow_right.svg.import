@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/icon_GUI_tree_arrow_right.svg-6b7d296721ba1ea66c081afdaff19efa.stex"
+path="res://.import/icon_GUI_tree_arrow_right.svg-b12b92f1e65b7e262e59e0440abb7611.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/vargen/icon_GUI_tree_arrow_right.svg"
-dest_files=[ "res://.import/icon_GUI_tree_arrow_right.svg-6b7d296721ba1ea66c081afdaff19efa.stex" ]
+source_file="res://addons/vargen/assets/icon_GUI_tree_arrow_right.svg"
+dest_files=[ "res://.import/icon_GUI_tree_arrow_right.svg-b12b92f1e65b7e262e59e0440abb7611.stex" ]
 
 [params]
 

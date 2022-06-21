@@ -6,8 +6,8 @@ export (String) var field_prefix = "_" setget set_field_prefix
 
 signal run_pressed(sender, options)
 
-const INDICATOR_COLLAPSED = preload("res://addons/vargen/icon_GUI_tree_arrow_right.svg")
-const INDICATOR_REVEALED = preload("res://addons/vargen/icon_GUI_tree_arrow_down.svg")
+const INDICATOR_COLLAPSED = preload("res://addons/vargen/assets/icon_GUI_tree_arrow_right.svg")
+const INDICATOR_REVEALED = preload("res://addons/vargen/assets/icon_GUI_tree_arrow_down.svg")
 
 onready var _warning_label: Label = $"WarningLabel"
 onready var _run_button: Button = $"RunButton"
@@ -18,6 +18,7 @@ onready var _prefix_edit: LineEdit = $"OptionsContainer/HBoxContainer/PrefixEdit
 var _is_collapsed: bool = true setget _set_is_collapsed
 var _is_run_enabled: bool = false
 var _warning_message: String = ""
+
 
 func set_field_prefix(val: String) -> void:
 	field_prefix = val

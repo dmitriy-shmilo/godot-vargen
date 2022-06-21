@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://addons/vargen/vargen_dock.gd" type="Script" id=1]
-[ext_resource path="res://addons/vargen/icon_GUI_tree_arrow_right.svg" type="Texture" id=2]
+[ext_resource path="res://addons/vargen/assets/icon_GUI_tree_arrow_right.svg" type="Texture" id=2]
 
 [sub_resource type="InputEventKey" id=1]
 alt = true
