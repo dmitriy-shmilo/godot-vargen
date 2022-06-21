@@ -17,7 +17,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "VargenNamer",
 "language": "GDScript",
-"path": "res://addons/vargen/vargen_namer.gd"
+"path": "res://addons/vargen/vargen_snake_namer.gd"
 }, {
 "base": "Resource",
 "class": "VargenPreferences",
