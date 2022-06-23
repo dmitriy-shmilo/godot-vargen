@@ -106,6 +106,7 @@ func insert_missing_signal_connections(lines: PoolStringArray, \
 	tabulation: String, \
 	insert_index: int \
 ) -> PoolStringArray:
+	var type_map = VargenCsharpConstants.VARIANT_TYPE_MAP
 	for key in signal_connections.keys():
 		if signal_connections[key].found:
 			continue
@@ -113,10 +114,17 @@ func insert_missing_signal_connections(lines: PoolStringArray, \
 		var line = PoolStringArray()
 		line.resize(2 + args.size())
 		line.append("%sprivate void %s(" % [tabulation, key])
+
 		for i in range(args.size()):
 			var arg = args[i]
+			var type = arg["class_name"]
+			if arg["class_name"].empty():
+				var type_idx = int(arg["type"])
+				type_idx = clamp(type_idx, 0, type_map.size() - 1)
+				type = type_map[type_idx]
+
 			line.append("%s %s%s" % [
-					arg["class_name"],
+					type,
 					arg["name"],
 					", " if i < args.size() - 1 else ""
 			])
