@@ -22,9 +22,8 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	remove_control_from_docks(_dock)
-	if _preferences != null:
-		_preferences.free()
-		_preferences = null
+
+	_preferences = null
 
 	if _dock != null:
 		_dock.free()
@@ -58,6 +57,8 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 		source_code = file.get_as_text()
 
 	composer.variable_prefix = options.field_prefix
+	composer.should_insert_nodes = options.insert_nodes
+	composer.should_insert_signals = options.insert_signals
 	source_code = composer.insert_onready_nodes(source_code, script, root_node, nodes)
 	file.store_string(source_code)
 	file.close()
@@ -73,12 +74,16 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 
 func _save_preferences(options: Dictionary) -> void:
 	_preferences.field_prefix = options.field_prefix
+	_preferences.insert_nodes = options.insert_nodes
+	_preferences.insert_signals = options.insert_signals
 	ResourceSaver.save("res://addons/vargen/vargen_preferences.tres", _preferences)
 
 
 func _load_preferences() -> void:
 	_preferences = ResourceLoader.load("res://addons/vargen/vargen_preferences.tres") as VargenPreferences
 	_dock.field_prefix = _preferences.field_prefix
+	_dock.insert_nodes = _preferences.insert_nodes
+	_dock.insert_signals = _preferences.insert_signals
 
 
 func _validate_selection(root_node: Node, selected_nodes: Array) -> bool:

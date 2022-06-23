@@ -16,15 +16,16 @@ func insert_onready_nodes(source: String, \
 	# expected signal connections
 	var signal_connections = {}
 
-	for node in selected_nodes:
-		for sig in node.get_signal_list():
-			for con in node.get_signal_connection_list(sig.name):
-				if con.target == root_node:
-					signal_connections[con.method] = {
-						connection = con,
-						signal = sig,
-						found = false
-					}
+	if should_insert_signals:
+		for node in selected_nodes:
+			for sig in node.get_signal_list():
+				for con in node.get_signal_connection_list(sig.name):
+					if con.target == root_node:
+						signal_connections[con.method] = {
+							connection = con,
+							signal = sig,
+							found = false
+						}
 
 	for i in range(lines.size()):
 		var line = lines[i] as String
@@ -50,18 +51,20 @@ func insert_onready_nodes(source: String, \
 		printerr("Can't find _Ready method in %s." % [script.resource_path])
 		return source
 
-	lines = insert_node_fields(lines, root_node, selected_nodes, \
-		tabulation, class_top_index, ready_method_index)
+	if should_insert_nodes:
+		lines = insert_node_fields(lines, root_node, selected_nodes, \
+			tabulation, class_top_index, ready_method_index)
 
-	# find the bottom of the last method
-	for i in range(lines.size()):
-		var line = lines[lines.size() - 1 - i]
-		if class_bottom_index < 0 and line.begins_with("%s}" % [tabulation]):
-			class_bottom_index = lines.size() - i
-			break
+	if should_insert_signals:
+		# find the bottom of the last method
+		for i in range(lines.size()):
+			var line = lines[lines.size() - 1 - i]
+			if class_bottom_index < 0 and line.begins_with("%s}" % [tabulation]):
+				class_bottom_index = lines.size() - i
+				break
 
-	lines = insert_missing_signal_connections(lines, signal_connections, \
-		tabulation, class_bottom_index)
+		lines = insert_missing_signal_connections(lines, signal_connections, \
+			tabulation, class_bottom_index)
 
 	return lines.join("\n")
 

@@ -10,6 +10,10 @@ func insert_onready_nodes(source: String, \
 	root_node: Node, \
 	selected_nodes: Array) -> String:
 
+	# TODO: support inerting missing signal connections
+	if not should_insert_nodes:
+		return source
+
 	var tabulation = ""
 	var lines = source.split("\n")
 	var class_top_index = -1

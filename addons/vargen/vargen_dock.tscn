@@ -31,29 +31,67 @@ margin_right = 67.0
 margin_bottom = 14.0
 text = "Options"
 
-[node name="OptionsContainer" type="VBoxContainer" parent="."]
+[node name="OptionsContainer" type="GridContainer" parent="."]
 visible = false
 margin_top = 18.0
 margin_right = 1024.0
-margin_bottom = 42.0
+margin_bottom = 98.0
+columns = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="OptionsContainer"]
-margin_right = 1024.0
-margin_bottom = 24.0
-
-[node name="Prefix" type="Label" parent="OptionsContainer/HBoxContainer"]
+[node name="PrefixLabel" type="Label" parent="OptionsContainer"]
 margin_top = 5.0
 margin_right = 510.0
 margin_bottom = 19.0
+hint_tooltip = "A prefix to prepend to each generated node reference field."
+mouse_filter = 1
 size_flags_horizontal = 3
-text = "Prefix"
+text = "Field prefix"
 
-[node name="PrefixEdit" type="LineEdit" parent="OptionsContainer/HBoxContainer"]
+[node name="PrefixEdit" type="LineEdit" parent="OptionsContainer"]
 margin_left = 514.0
 margin_right = 1024.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "_"
+
+[node name="InsertNodesLabel" type="Label" parent="OptionsContainer"]
+margin_top = 33.0
+margin_right = 510.0
+margin_bottom = 47.0
+hint_tooltip = "If checked, a node reference field will be generated for each selected node. The field will be initialized with a get_node call appropriate for a modified script."
+mouse_filter = 1
+size_flags_horizontal = 3
+text = "Node fields"
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="InsertNodesCheckbox" type="CheckBox" parent="OptionsContainer"]
+margin_left = 514.0
+margin_top = 28.0
+margin_right = 1024.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+text = "On"
+
+[node name="InsertSignalsLabel" type="Label" parent="OptionsContainer"]
+margin_top = 61.0
+margin_right = 510.0
+margin_bottom = 75.0
+hint_tooltip = "If checked, a signal connection method will be generated for each selected node's signal, if it can't be found in the target script.
+
+Only signal connections, which target the root node will be taken into account."
+mouse_filter = 1
+size_flags_horizontal = 3
+text = "Signal connections"
+
+[node name="InsertSignalsCheckbox" type="CheckBox" parent="OptionsContainer"]
+margin_left = 514.0
+margin_top = 56.0
+margin_right = 1024.0
+margin_bottom = 80.0
+size_flags_horizontal = 3
+text = "On"
 
 [node name="WarningLabel" type="Label" parent="."]
 visible = false

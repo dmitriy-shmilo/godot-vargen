@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource( 1 )
-field_prefix = "_"
+field_prefix = ""
+insert_nodes = true
+insert_signals = true
