@@ -76,11 +76,16 @@ func insert_node_fields(lines: PoolStringArray, \
 	field_declaration_index: int, \
 	field_init_index: int
 ) -> PoolStringArray:
-
+	var keywords = VargenCsharpConstants.RESERVED_KEYWORDS
 	var namer = VargenPascalNamer.new()
+
 	for i in range(selected_nodes.size()):
 		var node = selected_nodes[i] as Node
 		var var_name = variable_prefix + namer.var_name_from_node(node)
+
+		if keywords.has(var_name):
+			var_name = "@" + var_name
+
 		lines.insert(field_declaration_index + i, \
 			"%sprivate %s %s = null;" % [
 				tabulation,
@@ -107,6 +112,8 @@ func insert_missing_signal_connections(lines: PoolStringArray, \
 	insert_index: int \
 ) -> PoolStringArray:
 	var type_map = VargenCsharpConstants.VARIANT_TYPE_MAP
+	var keywords = VargenCsharpConstants.RESERVED_KEYWORDS
+
 	for key in signal_connections.keys():
 		if signal_connections[key].found:
 			continue
@@ -117,15 +124,20 @@ func insert_missing_signal_connections(lines: PoolStringArray, \
 
 		for i in range(args.size()):
 			var arg = args[i]
+
 			var type = arg["class_name"]
-			if arg["class_name"].empty():
+			if type.empty():
 				var type_idx = int(arg["type"])
 				type_idx = clamp(type_idx, 0, type_map.size() - 1)
 				type = type_map[type_idx]
 
+			var name = arg["name"]
+			if keywords.has(name):
+				name = "@" + name
+
 			line.append("%s %s%s" % [
 					type,
-					arg["name"],
+					name,
 					", " if i < args.size() - 1 else ""
 			])
 		line.append(")\n%s{\n%s}\n" % [tabulation, tabulation])
