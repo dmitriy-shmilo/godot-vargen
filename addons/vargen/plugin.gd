@@ -52,7 +52,8 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 	if script is GDScript:
 		composer = VargenGDScriptComposer.new()
 		source_code = script.source_code
-	elif script is CSharpScript:
+	# non-Mono Godot builds don't know about CSharpScript type
+	elif script.get_class() == "CSharpScript":
 		composer = VargenCSharpComposer.new()
 		source_code = file.get_as_text()
 
