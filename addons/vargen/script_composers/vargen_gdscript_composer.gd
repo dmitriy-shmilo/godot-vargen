@@ -2,7 +2,7 @@ class_name VargenGDScriptComposer
 extends VargenScriptComposer
 
 const ONREADY_BLOCK_START = "onready "
-const CLASS_TOP_START = "extends "
+const CLASS_TOP_STARTS = ["tool", "extends ", "class_name "]
 
 
 func insert_onready_nodes(source: String, \
@@ -10,7 +10,7 @@ func insert_onready_nodes(source: String, \
 	root_node: Node, \
 	selected_nodes: Array) -> String:
 
-	# TODO: support inerting missing signal connections
+	# TODO: support inserting missing signal connections
 	if not should_insert_nodes:
 		return source
 
@@ -23,9 +23,12 @@ func insert_onready_nodes(source: String, \
 	for i in range(lines.size()):
 		var line = lines[i] as String
 
-		if class_top_index < 0 and line.begins_with(CLASS_TOP_START):
-			class_top_index = i
-		elif onready_block_index < 0 and line.begins_with(ONREADY_BLOCK_START):
+		for top in CLASS_TOP_STARTS:
+			if line.begins_with(CLASS_TOP_STARTS[i]) and i > class_top_index:
+				class_top_index = i
+				break
+
+		if onready_block_index < 0 and line.begins_with(ONREADY_BLOCK_START):
 			onready_block_index = i
 
 		if class_top_index >= 0 and onready_block_index >= 0:
