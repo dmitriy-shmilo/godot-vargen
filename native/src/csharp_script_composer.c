@@ -126,13 +126,37 @@ const char * godot_variant_to_char(const godot_variant * g_variant) {
 	const char * result = api->godot_char_string_get_data(&c_string);
 
 	api->godot_string_destroy(&g_string);
-	api->godot_string_destroy(&c_string);
+	api->godot_char_string_destroy(&c_string);
 	return result;
+}
+
+const char * godot_string_to_char(const godot_string * g_string) {
+	godot_char_string c_string = api->godot_string_utf8(g_string);
+	const char * result = api->godot_char_string_get_data(&c_string);
+
+	api->godot_char_string_destroy(&c_string);
+	return result;
+}
+
+godot_variant godot_dictionary_get_by_string(godot_dictionary * dict, const char * c_key) {
+		godot_string key;
+		godot_variant v_key;
+		godot_variant result;
+
+		api->godot_string_new(&key);
+		api->godot_string_parse_utf8(&key, c_key);
+		api->godot_variant_new_string(&v_key, &key);
+		result = api->godot_dictionary_get(dict, &v_key);
+
+		api->godot_variant_destroy(&v_key);
+		api->godot_string_destroy(&key);
+
+		return result;
 }
 
 godot_variant composer_compose(
 	godot_object * instance, void * method_data, void * user_data,
-	int num_args, void ** args) {
+	int num_args, godot_variant ** args) {
 	godot_variant ret; 
 	api->godot_variant_new_nil(&ret);
 
@@ -165,11 +189,8 @@ godot_variant composer_compose(
 	self_fields * fields = (self_fields *)user_data;
 	char tmp_buffer[TMP_BUFFER_LEN];
 
-	size_t insertions_capacity = 0;
-	size_t insertions_count = 0;
-	insertion * insertions;
-
 	char tab[5] = { 0 };
+	size_t tab_len = 5;
 	size_t class_top_index = 0;
 	size_t ready_method_index = 0;
 	size_t class_bottom_index = 0;
@@ -179,10 +200,6 @@ godot_variant composer_compose(
 	class_start_line = api->godot_alloc(strlen(c_tmp) + 14);
 	strcpy(class_start_line, "public class ");
 	strcat(class_start_line, c_tmp);
-
-	class_end_line = api->godot_alloc(strlen(tab) + 2);
-	strcpy(class_end_line, tab);
-	strcat(class_end_line, "}");
 
 	c_tmp = godot_variant_to_char(args[0]);
 	original_file_location = api->godot_alloc(strlen(c_tmp) + 1);
@@ -199,6 +216,9 @@ godot_variant composer_compose(
 	godot_int signal_refs_count = api->godot_array_size(&signal_refs);
 	LOG_D("%d signal references will be processed", signal_refs_count)
 
+	size_t insertions_capacity = 0;
+	size_t insertions_count = 0;
+	insertion * insertions;
 	// 2 lines will be inserted per node ref
 	insertions_capacity = node_refs_count * 2 + signal_refs_count;
 	insertions = api->godot_alloc(insertions_capacity * sizeof(insertion));
@@ -217,21 +237,68 @@ godot_variant composer_compose(
 				tab[2] = ' ';
 				tab[3] = ' ';
 			}
+
+			if (tab[0] != '\0') {
+				class_end_line = api->godot_alloc(tab_len + 2);
+				strcpy(class_end_line, tab);
+				strcat(class_end_line, "}");
+			}
 		}
 
 		if (ready_method_index == 0 && strstr(tmp_buffer, "public override void _Ready()") != NULL) {
-			ready_method_index = i;
+			ready_method_index = i + 2;
 		}
 
 		if (class_top_index == 0 && strstr(tmp_buffer, class_start_line) != NULL) {
-			class_top_index = i;
+			class_top_index = i + 2;
 		}
 
-		if (strstr(tmp_buffer, class_end_line) != NULL) {
+		if (class_end_line != NULL && strstr(tmp_buffer, class_end_line) != NULL) {
 			class_bottom_index = i;
 		}
 
 		fields->original_line_count += 1;
+	}
+
+	for (int i = 0; i < node_refs_count; i++) {
+		godot_variant v_dict = api->godot_array_get(&node_refs, i);
+		godot_dictionary dict = api->godot_variant_as_dictionary(&v_dict);
+
+		godot_variant v_type = godot_dictionary_get_by_string(&dict, "type");
+		godot_string type = api->godot_variant_as_string(&v_type);
+		godot_variant v_path = godot_dictionary_get_by_string(&dict, "path");
+		godot_string path = api->godot_variant_as_string(&v_path);
+		godot_variant v_name = godot_dictionary_get_by_string(&dict, "name");
+		godot_string name = api->godot_variant_as_string(&v_name);
+
+		const char * c_type = godot_string_to_char(&type);
+		const char * c_path = godot_string_to_char(&path);
+		const char * c_name = godot_string_to_char(&name);
+
+		insertion decl = { 0 };
+		decl.line_len = 18 + tab_len + strlen(c_name);
+		decl.index = class_top_index;
+		decl.line = api->godot_alloc(decl.line_len);
+		snprintf(decl.line, decl.line_len, "%sprivate %s = null;\n", tab, c_name);
+		insertions[insertions_count] = decl;
+		insertions_count += 1;
+
+		insertion init = { 0 };
+		init.line_len = 19 + tab_len * 2 + strlen(c_path) + strlen(c_name) + strlen(c_type);
+		init.index = ready_method_index;
+		init.line = api->godot_alloc(init.line_len);
+		snprintf(init.line, init.line_len, "%s%s%s = GetNode<%s>(\"%s\");\n", tab, tab, c_name, c_type, c_path);
+		insertions[insertions_count] = init;
+		insertions_count += 1;
+
+		api->godot_variant_destroy(&v_type);
+		api->godot_string_destroy(&type);
+		api->godot_variant_destroy(&v_path);
+		api->godot_string_destroy(&path);
+		api->godot_variant_destroy(&v_name);
+		api->godot_string_destroy(&name);
+		api->godot_variant_destroy(&v_dict);
+		api->godot_dictionary_destroy(&dict);
 	}
 
 	LOG_D("Class top found at %d", class_top_index);
@@ -241,7 +308,15 @@ godot_variant composer_compose(
 	fseek(file, 0, SEEK_SET);
 
 	FILE * tmp_file = fopen(tmp_file_location, "w");
-	while(fgets(tmp_buffer, TMP_BUFFER_LEN, file)) {
+	for(size_t i = 0, j = 0; fgets(tmp_buffer, TMP_BUFFER_LEN, file); i++) {
+
+		while (j < insertions_count && insertions[j].index <= i) {
+			LOG_D("Inserting %s", insertions[j].line);
+			fputs(insertions[j].line, tmp_file);
+
+			api->godot_free(insertions[j].line);
+			j++;
+		}
 		fputs(tmp_buffer, tmp_file);
 	}
 
@@ -251,10 +326,14 @@ godot_variant composer_compose(
 	LOG_D("Total lines read: %d", fields->original_line_count);
 	LOG_D("Total insertions: %d (out of %d capacity)", insertions_count, insertions_capacity);
 
+	api->godot_array_destroy(&node_refs);
+	api->godot_array_destroy(&signal_refs);
+
 	api->godot_free(class_start_line);
 	api->godot_free(class_end_line);
 	api->godot_free(original_file_location);
 	api->godot_free(tmp_file_location);
+	api->godot_free(insertions);
 
 	return ret;
 }
