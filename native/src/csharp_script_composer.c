@@ -129,8 +129,9 @@ godot_variant composer_compose(
 	CHECK_ARG(args, 3, GODOT_VARIANT_TYPE_ARRAY, "Fourth argument is expected to be an array")
 
 	// these are allocated dynamically and need to be freed
-	char * original_file_location = NULL;
+	char * target_file_location = NULL;
 	char * tmp_file_location = NULL;
+	char * backup_file_location = NULL;
 	char * class_start_line = NULL;
 	char * class_end_line = NULL;
 
@@ -150,11 +151,14 @@ godot_variant composer_compose(
 	strcat(class_start_line, c_tmp);
 
 	c_tmp = godot_variant_to_char(args[0]);
-	original_file_location = api->godot_alloc(strlen(c_tmp) + 1);
+	target_file_location = api->godot_alloc(strlen(c_tmp) + 1);
 	tmp_file_location = api->godot_alloc(strlen(c_tmp) + 8);
-	strcpy(original_file_location, c_tmp);
+	backup_file_location = api->godot_alloc(strlen(c_tmp) + 5);
+	strcpy(target_file_location, c_tmp);
 	strcpy(tmp_file_location, c_tmp);
 	strcat(tmp_file_location, ".vargen");
+	strcpy(backup_file_location, c_tmp);
+	strcat(backup_file_location, ".bak");
 
 	godot_array node_refs = api->godot_variant_as_array(args[2]);
 	godot_int node_refs_count = api->godot_array_size(&node_refs);
@@ -171,7 +175,7 @@ godot_variant composer_compose(
 	insertions_capacity = node_refs_count * 2 + signal_refs_count;
 	insertions = api->godot_alloc(insertions_capacity * sizeof(insertion));
 
-	FILE * file = fopen(original_file_location, "r");
+	FILE * file = fopen(target_file_location, "r");
 
 	// TODO: handle lines longer than TMP_BUFFER_LEN
 	for(size_t i = 0; fgets(tmp_buffer, TMP_BUFFER_LEN, file); i++) {
@@ -271,6 +275,15 @@ godot_variant composer_compose(
 	fclose(tmp_file);
 	fclose(file);
 
+	// error code (file not found) is fine
+	if (remove(backup_file_location) != 0 && errno != 2) {
+		LOG_D("Can't delete backup file, error code: %d", errno)
+	} else if (rename(target_file_location, backup_file_location) != 0) {
+		LOG_D("Can't backup original file, error code: %d", errno)
+	} else if (rename(tmp_file_location, target_file_location) != 0) {
+		LOG_D("Can't repalce original file with modified one, error code: %d", errno)
+	}
+
 	LOG_D("Total lines read: %d", fields->original_line_count);
 	LOG_D("Total insertions: %d (out of %d capacity)", insertions_count, insertions_capacity);
 
@@ -279,7 +292,7 @@ godot_variant composer_compose(
 
 	api->godot_free(class_start_line);
 	api->godot_free(class_end_line);
-	api->godot_free(original_file_location);
+	api->godot_free(target_file_location);
 	api->godot_free(tmp_file_location);
 	api->godot_free(insertions);
 

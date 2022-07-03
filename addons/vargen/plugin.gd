@@ -67,6 +67,7 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 
 	var native_composer = preload("res://addons/vargen/script_composers/csharp_script_composer.gdns").new()
 	native_composer.compose(file_path, type_name, node_refs, signal_refs)
+	_interface.edit_script(script)
 	return
 
 	if not _validate_selection(root_node, nodes):
