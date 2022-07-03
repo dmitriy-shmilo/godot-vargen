@@ -10,3 +10,9 @@ export_presets.cfg
 .mono/
 data_*/
 .vs/
+
+# GDNative
+.sconsign.dblite
+*.obj
+*.exp
+*.lib
