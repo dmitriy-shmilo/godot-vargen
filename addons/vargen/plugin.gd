@@ -40,6 +40,34 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 	var root_node = _interface.get_edited_scene_root()
 	var script = root_node.get_script()
 	var nodes = _selection.get_selected_nodes()
+	var file_path = ProjectSettings.globalize_path(root_node.get_script().resource_path)
+	var type_name = script.resource_name
+
+	var node_refs = []
+	var signal_refs = []
+
+	if options.insert_nodes:
+		for node in nodes:
+			node_refs.append({
+				name = node.name,
+				path = root_node.get_path_to(node),
+				type = node.get_class()
+			})
+
+	if options.insert_signals:
+		for node in nodes:
+			for sig in node.get_signal_list():
+					for con in node.get_signal_connection_list(sig.name):
+						if con.target == root_node:
+							signal_refs.append({
+								method_name = con.method,
+								connection_data = con,
+								signal_data = sig
+							})
+
+	var native_composer = preload("res://addons/vargen/script_composers/csharp_script_composer.gdns").new()
+	native_composer.compose(file_path, type_name, node_refs, signal_refs)
+	return
 
 	if not _validate_selection(root_node, nodes):
 		return
