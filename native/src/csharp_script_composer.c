@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
+#include <stdarg.h>
 
 #include "gdnative_api_struct.gen.h"
 #include "gd_util.h"
@@ -96,6 +98,45 @@ void destructor(godot_object * instance, void * method_data, void * user_data) {
 if (api->godot_variant_get_type(args[index]) != type) { \
 	LOG_E("", error_msg) \
 	return ret; \
+}
+
+size_t add_insertion(
+	insertion * insertions,
+	size_t insertions_capacity,
+	size_t insertions_count,
+	size_t index,
+	size_t line_len,
+	const char * format, ...) {
+	assert(insertions != NULL);
+	assert(insertions_count < insertions_capacity);
+	assert(line_len > 0);
+
+	char * line = api->godot_alloc(line_len);
+	va_list args;
+	va_start(args, format);
+	vsnprintf(line, TMP_BUFFER_LEN, format, args);
+	va_end(args);
+	insertion ins = {
+		.line = line,
+		.line_len = line_len,
+		.index = index
+	};
+	insertions[insertions_count] = ins;
+	return insertions_count + 1;
+}
+
+int insertion_comparer(const void * v_left, const void * v_right) {
+	insertion * left = (insertion *)v_left;
+	insertion * right = (insertion *)v_right;
+
+	int result = left->index - right->index;
+
+	if (result != 0) {
+		return result;
+	}
+
+	result = strcmp(left->line, right->line);
+	return result;
 }
 
 godot_variant composer_compose(
@@ -201,7 +242,7 @@ godot_variant composer_compose(
 		}
 
 		if (class_end_line != NULL && strstr(tmp_buffer, class_end_line) != NULL) {
-			class_bottom_index = i;
+			class_bottom_index = i + 1;
 		}
 
 		fields->original_line_count += 1;
@@ -222,21 +263,19 @@ godot_variant composer_compose(
 		const char * c_path = godot_string_to_char(&path);
 		const char * c_name = godot_string_to_char(&name);
 
-		insertion decl = { 0 };
-		decl.line_len = 18 + tab_len + strlen(c_name);
-		decl.index = class_top_index;
-		decl.line = api->godot_alloc(decl.line_len);
-		snprintf(decl.line, decl.line_len, "%sprivate %s = null;\n", tab, c_name);
-		insertions[insertions_count] = decl;
-		insertions_count += 1;
+		insertions_count = add_insertion(
+			insertions, insertions_capacity, insertions_count,
+			class_top_index,
+			18 + tab_len + strlen(c_name),
+			"%sprivate %s = null;\n",
+			tab, c_name);
 
-		insertion init = { 0 };
-		init.line_len = 19 + tab_len * 2 + strlen(c_path) + strlen(c_name) + strlen(c_type);
-		init.index = ready_method_index;
-		init.line = api->godot_alloc(init.line_len);
-		snprintf(init.line, init.line_len, "%s%s%s = GetNode<%s>(\"%s\");\n", tab, tab, c_name, c_type, c_path);
-		insertions[insertions_count] = init;
-		insertions_count += 1;
+		insertions_count = add_insertion(
+			insertions, insertions_capacity, insertions_count,
+			ready_method_index,
+			19 + tab_len * 2 + strlen(c_path) + strlen(c_name) + strlen(c_type),
+			"%s%s%s = GetNode<%s>(\"%s\");\n",
+			tab, tab, c_name, c_type, c_path);
 
 		api->godot_variant_destroy(&v_type);
 		api->godot_string_destroy(&type);
@@ -244,6 +283,29 @@ godot_variant composer_compose(
 		api->godot_string_destroy(&path);
 		api->godot_variant_destroy(&v_name);
 		api->godot_string_destroy(&name);
+
+		api->godot_variant_destroy(&v_dict);
+		api->godot_dictionary_destroy(&dict);
+	}
+
+	for (int i = 0; i < signal_refs_count; i++) {
+		godot_variant v_dict = api->godot_array_get(&signal_refs, i);
+		godot_dictionary dict = api->godot_variant_as_dictionary(&v_dict);
+
+		godot_variant v_method_name = godot_dictionary_get_by_string(&dict, "method_name");
+		const char * method_name = godot_variant_to_char(&v_method_name);
+
+		char * arguments = "/*args*/";
+		size_t arguments_len = strlen(arguments);
+
+		insertions_count = add_insertion(
+			insertions, insertions_capacity, insertions_count,
+			class_bottom_index,
+			22 + tab_len * 3 + strlen(method_name) + arguments_len,
+			"\n%sprivate void %s(%s)\n%s{\n%s}\n",
+			tab, method_name, arguments, tab, tab);
+
+		api->godot_variant_destroy(&v_method_name);
 		api->godot_variant_destroy(&v_dict);
 		api->godot_dictionary_destroy(&dict);
 	}
@@ -252,13 +314,16 @@ godot_variant composer_compose(
 	LOG_D("Ready method found at %d", ready_method_index)
 	LOG_D("Class bottom found at %d", class_bottom_index)
 
+	qsort(insertions, insertions_count, sizeof(insertion), insertion_comparer);
+	LOG_D("Insertions sorted.")
+
 	fseek(file, 0, SEEK_SET);
 
 	FILE * tmp_file = fopen(tmp_file_location, "w");
 	for(size_t i = 0, j = 0; fgets(tmp_buffer, TMP_BUFFER_LEN, file); i++) {
 
 		while (j < insertions_count && insertions[j].index <= i) {
-			LOG_D("Inserting %s", insertions[j].line);
+			LOG_D("Inserting %s (at %d)", insertions[j].line, insertions[j].index);
 			fputs(insertions[j].line, tmp_file);
 
 			api->godot_free(insertions[j].line);
