@@ -211,6 +211,11 @@ godot_variant composer_compose(
 	insertions_capacity = node_refs_count * 2 + signal_refs_count;
 	insertions = api->godot_alloc(insertions_capacity * sizeof(insertion));
 
+	if (insertions_capacity == 0) {
+		LOG_D("No nodes or signals selected, skip.")
+		goto finally;
+	}
+
 	FILE * file = fopen(target_file_location, "r");
 
 	// TODO: handle lines longer than TMP_BUFFER_LEN
@@ -266,9 +271,9 @@ godot_variant composer_compose(
 		insertions_count = add_insertion(
 			insertions, insertions_capacity, insertions_count,
 			class_top_index,
-			18 + tab_len + strlen(c_name),
-			"%sprivate %s = null;\n",
-			tab, c_name);
+			19 + tab_len + strlen(c_name) + strlen(c_type),
+			"%sprivate %s %s = null;\n",
+			tab, c_type, c_name);
 
 		insertions_count = add_insertion(
 			insertions, insertions_capacity, insertions_count,
@@ -347,15 +352,20 @@ godot_variant composer_compose(
 		LOG_D("Total insertions: %d (out of %d capacity)", insertions_count, insertions_capacity)
 	}
 
+	finally:
 	api->godot_array_destroy(&node_refs);
 	api->godot_array_destroy(&signal_refs);
 
 	api->godot_free(class_start_line);
-	api->godot_free(class_end_line);
 	api->godot_free(target_file_location);
 	api->godot_free(tmp_file_location);
 	api->godot_free(backup_file_location);
-	api->godot_free(insertions);
+	if (class_end_line != NULL) {
+		api->godot_free(class_end_line);
+	}
 
+	if (insertions != NULL) {
+		api->godot_free(insertions);
+	}
 	return ret;
 }
