@@ -37,19 +37,19 @@ void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options * options) {
 				break;
 		}
 	}
-	LOG_D("godot_gdnative_init");
+	LOG_D("godot_gdnative_init")
 }
 
 
 void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options * options) {
-	LOG_D("godot_gdnative_terminate");
+	LOG_D("godot_gdnative_terminate")
 	api = NULL;
 	nativescript_api = NULL;
 }
 
 
 void GDN_EXPORT godot_nativescript_init(void * handle) {
-	LOG_D("godot_nativescript_init");
+	LOG_D("godot_nativescript_init")
 	if (nativescript_api == NULL) {
 		return;
 	}
@@ -81,26 +81,22 @@ void GDN_EXPORT godot_nativescript_init(void * handle) {
 
 
 void * constructor(godot_object * instance, void * method_data) {
-	LOG_D("constructor");
+	LOG_D("constructor")
 	self_fields * fields = api->godot_alloc(sizeof(self_fields));
 	memset(fields, 0, sizeof(self_fields));
 	return fields;
 }
 
 void destructor(godot_object * instance, void * method_data, void * user_data) {
-	LOG_D("destructor");
+	LOG_D("destructor")
 	api->godot_free(user_data);
 }
 
 #define CHECK_ARG(args, index, type, error_msg) \
 if (api->godot_variant_get_type(args[index]) != type) { \
-		api->godot_print_error(error_msg, "", __FILE__, __LINE__); \
-		return ret; \
+	LOG_E("", error_msg) \
+	return ret; \
 }
-
-
-
-
 
 godot_variant composer_compose(
 	godot_object * instance, void * method_data, void * user_data,
@@ -108,18 +104,18 @@ godot_variant composer_compose(
 	godot_variant ret; 
 	api->godot_variant_new_nil(&ret);
 
-	LOG_D("composer_compose with %d args", num_args);
+	LOG_D("composer_compose with %d args", num_args)
 
 	#if DEBUG
 	for (int i = 0; i < num_args; i++) {
 		void * var_arg = args[i];
 		godot_variant_type var_type = api->godot_variant_get_type(var_arg);
-		LOG_D("composer_compose arg#%d type: %d", i, var_type);
+		LOG_D("composer_compose arg#%d type: %d", i, var_type)
 	}
 	#endif
 
 	if (num_args != 4) {
-		api->godot_print_error("CSharpScriptComposer.compose expected 4 arguments", "", __FILE__, __LINE__);
+		LOG_E("compose", "Expected 4 arguments")
 		return ret;
 	}
 
@@ -143,7 +139,6 @@ godot_variant composer_compose(
 	size_t class_top_index = 0;
 	size_t ready_method_index = 0;
 	size_t class_bottom_index = 0;
-
 
 	const char * c_tmp = godot_variant_to_char(args[1]);
 	class_start_line = api->godot_alloc(strlen(c_tmp) + 14);
@@ -253,9 +248,9 @@ godot_variant composer_compose(
 		api->godot_dictionary_destroy(&dict);
 	}
 
-	LOG_D("Class top found at %d", class_top_index);
-	LOG_D("Ready method found at %d", ready_method_index);
-	LOG_D("Class bottom found at %d", class_bottom_index);
+	LOG_D("Class top found at %d", class_top_index)
+	LOG_D("Ready method found at %d", ready_method_index)
+	LOG_D("Class bottom found at %d", class_bottom_index)
 
 	fseek(file, 0, SEEK_SET);
 
@@ -275,17 +270,17 @@ godot_variant composer_compose(
 	fclose(tmp_file);
 	fclose(file);
 
-	// error code (file not found) is fine
+	// error code 2 (file not found) is fine
 	if (remove(backup_file_location) != 0 && errno != 2) {
-		LOG_D("Can't delete backup file, error code: %d", errno)
+		LOG_E("compose", "Can't delete backup file, error code: %d", errno)
 	} else if (rename(target_file_location, backup_file_location) != 0) {
-		LOG_D("Can't backup original file, error code: %d", errno)
+		LOG_E("compose", "Can't backup original file, error code: %d", errno)
 	} else if (rename(tmp_file_location, target_file_location) != 0) {
-		LOG_D("Can't repalce original file with modified one, error code: %d", errno)
+		LOG_E("compose", "Can't repalce original file with modified one, error code: %d", errno)
+	} else {
+		LOG_D("Total lines read: %d", fields->original_line_count)
+		LOG_D("Total insertions: %d (out of %d capacity)", insertions_count, insertions_capacity)
 	}
-
-	LOG_D("Total lines read: %d", fields->original_line_count);
-	LOG_D("Total insertions: %d (out of %d capacity)", insertions_count, insertions_capacity);
 
 	api->godot_array_destroy(&node_refs);
 	api->godot_array_destroy(&signal_refs);
@@ -294,6 +289,7 @@ godot_variant composer_compose(
 	api->godot_free(class_end_line);
 	api->godot_free(target_file_location);
 	api->godot_free(tmp_file_location);
+	api->godot_free(backup_file_location);
 	api->godot_free(insertions);
 
 	return ret;
