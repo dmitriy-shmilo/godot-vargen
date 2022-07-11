@@ -69,7 +69,7 @@ func _on_run_pressed(sender: VargenDock, options: Dictionary) -> void:
 		_interface.set_main_screen_editor("Script")
 		_interface.edit_script(script)
 		_interface.get_script_editor()._reload_scripts() # undocumented call, sometimes generates an error
-	elif script is CSharpScript:
+	elif script.get_class() == "CSharpScript":
 		_interface.edit_script(script)
 
 
@@ -97,7 +97,7 @@ func _validate_selection(root_node: Node, selected_nodes: Array) -> bool:
 		_dock.set_is_run_enabled(false, "Current scene root doesn't have a script attached.")
 		return false
 
-	if not root_script is GDScript and not root_script is CSharpScript:
+	if not root_script is GDScript and not root_script.get_class() == "CSharpScript":
 		_dock.set_is_run_enabled(false, "Scene root script is not a GDScript nor a C# Script.")
 		return false
 
